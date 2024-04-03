@@ -4,15 +4,27 @@ const axios = require('axios');
 const app = express();
 
 // routes
+app.get('/pokemon', async (req, res) => {
+    try {
+        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon`)
+        const pokemon = response.data
+
+        res.json(pokemon)
+    } catch (e) {
+        res.status(404).json({ message: "All pokemon not found" })
+    }
+});
+
+
 app.get('/pokemon/:name', async (req, res) => {
     try {
         const name = req.params.name
-        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`);
+        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`)
         const pokemon = response.data
 
-        res.json(pokemon); // Sending JSON response
+        res.json(pokemon)
     } catch (e) {
-        res.status(404).json({ message: "Pokemon not found!" }); // Sending JSON error response
+        res.status(404).json({ message: "Pokemon not found!" })
     }
 });
 
