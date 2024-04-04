@@ -15,40 +15,40 @@ const app = express()
 const PORT = 3000
 
 // routes
-app.get('/pokemon', async (req, res) => {
+// app.get('/pokemon', async (req, res) => {
+//     try {
+//         const response = await axios.get(`https://pokeapi.co/api/v2/pokemon?limit=100&offset=0`)
+//         const pokemon = response.data
+
+//         res.json(pokemon)
+//     } catch (e) {
+//         res.status(404).json({ message: "All pokemon not found" })
+//     }
+// })
+
+// app.get('/pokemon/:id', async (req, res) => {
+//     try {
+//         const id = req.params.id
+//         const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`)
+//         const pokemon = response.data
+
+//         res.json(pokemon)
+//     } catch (e) {
+//         res.status(404).json({ message: "Pokemon not found!" })
+//     }
+// })
+
+app.get('/pokemon/catch/:name', async (req, res) => {
     try {
-        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon?limit=100&offset=0`)
-        const pokemon = response.data
-
-        res.json(pokemon)
-    } catch (e) {
-        res.status(404).json({ message: "All pokemon not found" })
-    }
-})
-
-app.get('/pokemon/:id', async (req, res) => {
-    try {
-        const id = req.params.id
-        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`)
-        const pokemon = response.data
-
-        res.json(pokemon)
-    } catch (e) {
-        res.status(404).json({ message: "Pokemon not found!" })
-    }
-})
-
-app.get('/pokemon/catch/:id', async (req, res) => {
-    try {
-        const id = req.params.id
-        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`)
+        const name = req.params.name
+        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`)
         const pokemon = response.data
 
         const randomNum = Math.random()
         const probability = 0.5
 
         if (randomNum < probability) {
-            const query = 'INSERT INTO pokedexes (name, prime_number) VALUES ($1, $2) RETURNING *'
+            const query = 'INSERT INTO pokedexes (name, height, weight) VALUES ($1, $2) RETURNING *'
             const values = [pokemon.name, 2]
 
             const { rows } = await pool.query(query, values)
