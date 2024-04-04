@@ -49,7 +49,13 @@ app.get('/pokemon/catch/:id', async (req, res) => {
         const probability = 0.5
 
         if (randomNum < probability) {
-            res.json({ success: true, pokemon })
+            const query = 'INSERT INTO pokedexes (name, prime_number) VALUES ($1, $2) RETURNING *'
+            const values = [pokemon.name, 2]
+
+            const { rows } = await pool.query(query, values)
+            const newPokemon = rows[0];
+
+            res.json({ success: true, pokemon: newPokemon })
         } else {
             res.json({ success: false, message: 'The Pokémon got away...' })
         }
