@@ -36,8 +36,7 @@ app.get('/pokemon/:id', async (req, res) => {
     } catch (e) {
         res.status(404).json({ message: "Pokemon not found!" })
     }
-});
-
+})
 
 app.get('/pokemon/catch/:id', async (req, res) => {
     try {
@@ -64,5 +63,42 @@ app.get('/pokemon/catch/:id', async (req, res) => {
     }
 })
 
+// release
+app.delete('/pokemon/release/:id', async (req, res) => {
+    try {
+        
+    } catch (e) {
+        res.status(404).json({ message: "Pokemon not found!" })
+    }
+})
+
+
+// my poke list
+app.get('/pokemon/mylist', async(req, res) => {
+    try {
+        
+    } catch (e) {
+        
+    }
+})
+
+
+// my pokelist by id
+app.get('/pokemon/mylist/:id', async(req, res) => {
+    try {
+        
+    } catch (error) {
+        
+    }
+})
+
+// rename pokemon
+app.patch('/pokemon/mylist/rename/:id', async(req, res) => {
+    try {
+        
+    } catch (error) {
+        
+    }
+})
 
 app.listen(PORT, () => { console.log("Server running on port 3000!") })
