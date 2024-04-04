@@ -8,7 +8,7 @@ const pool = new Pool({
     host: 'salt.db.elephantsql.com',
     database: 'mnljupmw',
     password: 'nHq0_miU7ryNwmjIE6cnggsBkdD08Lhz',
-    port: 5432,
+    port: 5432
 })
 
 const app = express()
@@ -64,7 +64,7 @@ app.get('/pokemon/catch/:id', async (req, res) => {
 })
 
 // release
-app.delete('/pokemon/release/:id', async (req, res) => {
+app.delete('/pokedexes/release/:id', async (req, res) => {
     try {
         
     } catch (e) {
@@ -74,17 +74,20 @@ app.delete('/pokemon/release/:id', async (req, res) => {
 
 
 // my poke list
-app.get('/pokemon/mylist', async(req, res) => {
+app.get('/pokedexes', async(req, res) => {
     try {
-        
+        const query = 'SELECT * FROM pokedexes'
+
+        const {rows} = await pool.query(query)
+        res.json(rows)
     } catch (e) {
-        
+        res.status(500).json({ message: "Internal server error" })
     }
 })
 
 
 // my pokelist by id
-app.get('/pokemon/mylist/:id', async(req, res) => {
+app.get('/pokedexes/:id', async(req, res) => {
     try {
         
     } catch (error) {
@@ -93,7 +96,7 @@ app.get('/pokemon/mylist/:id', async(req, res) => {
 })
 
 // rename pokemon
-app.patch('/pokemon/mylist/rename/:id', async(req, res) => {
+app.patch('/pokedexes/rename/:id', async(req, res) => {
     try {
         
     } catch (error) {
