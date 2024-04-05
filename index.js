@@ -3,6 +3,7 @@ const axios = require("axios");
 const { Pool } = require("pg");
 const cors = require("cors");
 const bodyParser = require("body-parser");
+const e = require("express");
 
 // connection postgre
 const pool = new Pool({
@@ -75,7 +76,7 @@ app.post("/pokemon/catch/:name", async (req, res) => {
 
     if (randomNum < probability) {
       const query =
-        "INSERT INTO pokedexes (pokemon_name, name, height, weight, image) VALUES ($1 ,$1, $2, $3, $4) RETURNING *";
+        "INSERT INTO pokedexes (pokemon_name, name, height, weight, image, count_name) VALUES ($1 ,$1, $2, $3, $4, 0) RETURNING *";
       const values = [
         pokemon.name,
         pokemon.weight,
@@ -91,7 +92,7 @@ app.post("/pokemon/catch/:name", async (req, res) => {
       res.json({ success: false, message: "The Pokémon got away..." });
     }
   } catch (e) {
-    // console.error(e);
+    console.error(e);
     res.status(404).json({ message: "Pokemon not found!" });
   }
 });
@@ -173,21 +174,58 @@ app.get("/pokedexes/:name", async (req, res) => {
 // rename pokemon
 app.patch("/pokedexes/rename/:id", async (req, res) => {
   const { id } = req.params;
-  const { name } = req.body;
+  let { name } = req.body;
+  var count = 0;
   if (id !== 0 && id !== undefined && name !== "") {
     try {
-      const query = "UPDATE pokedexes SET name = LOWER($1) WHERE id = $2";
-      const result = await pool.query(query, [name, id]);
+      const oldData = "SELECT count_name FROM pokedexes WHERE id = $1";
+      const query =
+        "UPDATE pokedexes SET name = LOWER($1), count_name = $2 WHERE id = $3";
 
-      if (result.rowCount === 1) {
-        res.json({
-          success: true,
-          message: "Pokemon has been updated in the Pokedex",
-        });
+      const resultOld = await pool.query(oldData, [id]);
+      if (resultOld.rowCount === 1) {
+        var countString = resultOld.rows[0].count_name;
+        count = parseInt(countString, 10);
+        if (count > 0) {
+          name = name + "-" + count;
+          count = count + 1;
+          const result = await pool.query(query, [name, count, id]);
+
+          if (result.rowCount === 1) {
+            res.json({
+              success: true,
+              message: "Pokemon has been updated in the Pokedex",
+              count: count,
+            });
+          } else {
+            res
+              .status(404)
+              .json({ message: `Pokemon with ID ${id} not found` });
+          }
+        } else {
+          name = name + "-" + 0;
+          var countString = resultOld.rows[0].count_name;
+          var count = parseInt(countString, 10);
+          count = count + 1;
+          const result = await pool.query(query, [name, count, id]);
+
+          if (result.rowCount === 1) {
+            res.json({
+              success: true,
+              message: "Pokemon has been updated in the Pokedex",
+              data: count,
+            });
+          } else {
+            res
+              .status(404)
+              .json({ message: `Pokemon with ID ${id} not found` });
+          }
+        }
       } else {
         res.status(404).json({ message: `Pokemon with ID ${id} not found` });
       }
     } catch (e) {
+      console.log(e);
       res.status(500).json({ message: "Internal server error" });
     }
   } else {
@@ -196,6 +234,28 @@ app.patch("/pokedexes/rename/:id", async (req, res) => {
       message: "Name cannot be blank",
     });
   }
+});
+
+app.patch("/pokemon/update/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    const query = "UPDATE pokedexes SET name = $1 WHERE id = $2";
+    const result = await pool.query(query, [name, id]);
+
+    if (result.rowCount === 1) {
+      res.json({
+        success: true,
+        message: "Pokemon has been updated in the Pokedex",
+      });
+    } else {
+      res.status(404).json({ message: `Pokemon with ID ${id} not found` });
+    }
+  } catch (e) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+  return true;
 });
 
 app.listen(PORT, () => {
