@@ -7,19 +7,20 @@ const e = require("express");
 
 // connection postgre
 const pool = new Pool({
-  user: "mnljupmw",
-  host: "salt.db.elephantsql.com",
-  database: "mnljupmw",
-  password: "nHq0_miU7ryNwmjIE6cnggsBkdD08Lhz",
+  user: "postgres",
+  host: "localhost",
+  database: "pokedexes",
+  password: "postgres",
   port: 5432,
 });
 
 const app = express();
 const PORT = 3000;
 
+// setting origins
 app.use(
   cors({
-    origin: "https://congenial-goldfish-9p54qwqvg9x3x4rv-5173.app.github.dev",
+    origin: "http://localhost:5173",
   })
 );
 app.use(bodyParser.json());
