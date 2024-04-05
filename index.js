@@ -96,27 +96,6 @@ app.post("/pokemon/catch/:name", async (req, res) => {
   }
 });
 
-app.patch("/pokemon/update/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name } = req.body;
-
-    const query = "UPDATE pokedexes SET name = LOWER($1) WHERE id = $2";
-    const result = await pool.query(query, [name, id]);
-
-    if (result.rowCount === 1) {
-      res.json({
-        success: true,
-        message: "Pokemon has been updated in the Pokedex",
-      });
-    } else {
-      res.status(404).json({ message: `Pokemon with ID ${id} not found` });
-    }
-  } catch (e) {
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
 // release all
 app.delete("/pokedexes/release", async (req, res) => {
   try {
@@ -193,8 +172,30 @@ app.get("/pokedexes/:name", async (req, res) => {
 
 // rename pokemon
 app.patch("/pokedexes/rename/:id", async (req, res) => {
-  try {
-  } catch (error) {}
+  const { id } = req.params;
+  const { name } = req.body;
+  if (id !== 0 && id !== undefined && name !== "") {
+    try {
+      const query = "UPDATE pokedexes SET name = LOWER($1) WHERE id = $2";
+      const result = await pool.query(query, [name, id]);
+
+      if (result.rowCount === 1) {
+        res.json({
+          success: true,
+          message: "Pokemon has been updated in the Pokedex",
+        });
+      } else {
+        res.status(404).json({ message: `Pokemon with ID ${id} not found` });
+      }
+    } catch (e) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  } else {
+    res.json({
+      success: true,
+      message: "Name cannot be blank",
+    });
+  }
 });
 
 app.listen(PORT, () => {
