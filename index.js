@@ -1,6 +1,8 @@
 const express = require('express')
 const axios = require('axios')
 const { Pool } = require('pg')
+const cors = require('cors')
+const bodyParser = require('body-parser');
 
 // connection postgre
 const pool = new Pool({
@@ -13,6 +15,11 @@ const pool = new Pool({
 
 const app = express()
 const PORT = 3000
+
+app.use(cors({
+    origin: 'https://congenial-goldfish-9p54qwqvg9x3x4rv-5173.app.github.dev'
+}))
+app.use(bodyParser.json());
 
 // routes
 // app.get('/pokemon', async (req, res) => {
@@ -38,7 +45,7 @@ const PORT = 3000
 //     }
 // })
 
-app.get('/pokemon/catch/:name', async (req, res) => {
+app.post('/pokemon/catch/:name', async (req, res) => {
     try {
         const name = req.params.name
         const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`)
@@ -48,8 +55,8 @@ app.get('/pokemon/catch/:name', async (req, res) => {
         const probability = 0.5
 
         if (randomNum < probability) {
-            const query = 'INSERT INTO pokedexes (name, height, weight) VALUES ($1, $2) RETURNING *'
-            const values = [pokemon.name, 2]
+            const query = 'INSERT INTO pokedexes (name, height, weight) VALUES ($1, $2, $3) RETURNING *'
+            const values = [pokemon.name,pokemon.weight,pokemon.height]
 
             const { rows } = await pool.query(query, values)
             const newPokemon = rows[0];
@@ -58,17 +65,40 @@ app.get('/pokemon/catch/:name', async (req, res) => {
         } else {
             res.json({ success: false, message: 'The Pokémon got away...' })
         }
-    } catch (error) {
+    } catch (e) {
+        // console.error(e);
         res.status(404).json({ message: "Pokemon not found!" })
     }
 })
 
-// release
-app.delete('/pokedexes/release/:id', async (req, res) => {
-    try {
-        
+
+app.patch('/pokemon/update/:id', async (req, res) => {
+    try {  
+        const { id } = req.params;
+        const { name } = req.body;
+
+        const query = 'UPDATE pokedexes SET name = $1 WHERE id = $2';
+        const result = await pool.query(query, [name, id]);
+
+        if (result.rowCount === 1) {
+           res.json({ success: true, message: "Pokemon has been updated in the Pokedex" });
+        } else {
+            res.status(404).json({ message: `Pokemon with ID ${id} not found` });
+        }
     } catch (e) {
-        res.status(404).json({ message: "Pokemon not found!" })
+        res.status(500).json({ message: "Internal server error" });
+    }
+})
+
+// release
+app.delete('/pokedexes/release/', async (req, res) => {
+    try {
+        const query = 'DELETE FROM pokedexes'
+
+        const {rows} = await pool.query(query)
+        res.json(rows)
+    } catch (e) {
+        res.status(500).json({ message: "Internal server error" })
     }
 })
 
