@@ -24,30 +24,6 @@ app.use(
 );
 app.use(bodyParser.json());
 
-// routes
-// app.get('/pokemon', async (req, res) => {
-//     try {
-//         const response = await axios.get(`https://pokeapi.co/api/v2/pokemon?limit=100&offset=0`)
-//         const pokemon = response.data
-
-//         res.json(pokemon)
-//     } catch (e) {
-//         res.status(404).json({ message: "All pokemon not found" })
-//     }
-// })
-
-// app.get('/pokemon/:id', async (req, res) => {
-//     try {
-//         const id = req.params.id
-//         const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`)
-//         const pokemon = response.data
-
-//         res.json(pokemon)
-//     } catch (e) {
-//         res.status(404).json({ message: "Pokemon not found!" })
-//     }
-// })
-
 function checkPrimeNumber(num) {
   if (num <= 1) {
     return false;
